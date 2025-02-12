@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ToDo">
+
+    <TextView
+        android:id="@+id/Title1"
+        android:layout_width="41dp"
+        android:layout_height="17dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/taskTitleView"
+        android:layout_width="379dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="2dp"
+        android:text="Task Title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Title1" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="73dp"
+        android:layout_height="17dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:text="Description"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskTitleView" />
+
+
+    <EditText
+        android:id="@+id/taskDescriptionView"
+        android:layout_width="380dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="2dp"
+        android:hint="Task Description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+    <TextView
+        android:id="@+id/taskDueDateBOX"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:text="Due Date"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskDescriptionView" />
+
+    <EditText
+        android:id="@+id/taskDueDateView"
+        android:layout_width="380dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="2dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:onClick="onClick"
+        android:text="dd/mm/yyyy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskDueDateBOX" />
+
+    <TextView
+        android:id="@+id/taskDueTimeBOX"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:text="Due Time"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskDueDateView" />
+
+    <EditText
+        android:id="@+id/taskDueTimeView"
+        android:layout_width="380dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="2dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:onClick="onTimeClick"
+        android:text="00:00"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskDueTimeBOX" />
+
+    <Button
+        android:id="@+id/saveTaskButton"
+        android:layout_width="380dp"
+        android:layout_height="61dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/black"
+        android:text="Save"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
