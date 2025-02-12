@@ -4,6 +4,9 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+//random comment
+
+
 @Entity
 public class Task {
 
@@ -17,5 +20,5 @@ public class Task {
     public String description;
 
     @ColumnInfo(name="duedate")
-    public Long duedate;
+    public String duedate;
 }
