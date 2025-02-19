@@ -18,9 +18,9 @@ public abstract class TasksDB extends RoomDatabase {
     //Return an database instance.
     //If the database instance already exists it return the existing instance.
     //If not then it creates a new instance and returns that.
-    public static TasksDB getInstance(View.OnClickListener context)
+    public static TasksDB getInstance(Context context)
     {
-        if (db == null) db =buildDatabaseInstance((Context) context);
+        if (db == null) db =buildDatabaseInstance(context);
         return db;
     }
     private static TasksDB buildDatabaseInstance(Context context)

@@ -20,5 +20,5 @@ public class Task {
     public String description;
 
     @ColumnInfo(name="duedate")
-    public Long duedate;
+    public String duedate;
 }

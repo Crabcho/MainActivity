@@ -21,6 +21,10 @@ import androidx.lifecycle.Observer;
 import android.content.SharedPreferences;
 import android.content.Context;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -55,12 +59,14 @@ public class ToDo extends AppCompatActivity {
                 String time = timeView.getText().toString();
 
                 //create an instance of the Database
-                TasksDB db = TasksDB.getInstance(this);
+                TasksDB db = TasksDB.getInstance(view.getContext());
 
                 //create a new Task
                 final Task task1 = new Task();
-                task1.title = "test_title";
-                task1.description = "a random description I guess";
+                task1.title = title;
+                task1.description = desc;
+                task1.duedate = date + " " + time;
+
 
                 //this won't work
                 //db.tasksDAO().insert(task1);
@@ -74,6 +80,7 @@ public class ToDo extends AppCompatActivity {
                         db.tasksDAO().insert(task1);
                     }
                 });
+                finish();
 
 
 
