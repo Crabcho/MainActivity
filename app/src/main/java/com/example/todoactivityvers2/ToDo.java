@@ -2,16 +2,25 @@ package com.example.todoactivityvers2;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TimePicker;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -21,6 +30,7 @@ import androidx.lifecycle.Observer;
 import android.content.SharedPreferences;
 import android.content.Context;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -30,6 +40,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class ToDo extends AppCompatActivity {
+    Uri imageURI;
+    ActivityResultLauncher<Intent> launchCameraActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +52,27 @@ public class ToDo extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+
+
+
         });
 
+        launchCameraActivity = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult activityResult) {
+                        if(activityResult.getResultCode() == RESULT_OK) {
+                            ImageView taskImage = findViewById(R.id.taskImageView);
+                            taskImage.setImageURI(imageURI);
+                            Log.d("ToDoApp", "picture store in: " + imageURI);
+                            if (imageURI != null) {
+                                taskImage.setImageURI(imageURI);
+                            }
+                        }
+
+                    }
+                });
         Button saveButton = findViewById(R.id.saveTaskButton);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -53,10 +84,13 @@ public class ToDo extends AppCompatActivity {
                 EditText dateView = findViewById(R.id.taskDueDateView);
                 EditText timeView = findViewById(R.id.taskDueTimeView);
 
+
                 String title = titleView.getText().toString();
                 String desc = descView.getText().toString();
                 String date = dateView.getText().toString();
                 String time = timeView.getText().toString();
+
+
 
                 //create an instance of the Database
                 TasksDB db = TasksDB.getInstance(view.getContext());
@@ -67,6 +101,7 @@ public class ToDo extends AppCompatActivity {
                 task1.description = desc;
                 task1.duedate = date + " " + time;
 
+                task1.imageURI = (imageURI != null) ? imageURI.toString() : null;
 
                 //this won't work
                 //db.tasksDAO().insert(task1);
@@ -151,6 +186,20 @@ public class ToDo extends AppCompatActivity {
 
 
     }
+    public void onCameraClick (View view) {
+
+        Log.d("ToDoApp", "onCameraClick");
+
+        String filename = "JPEG_" + System.currentTimeMillis() + ".jpg";
+        File imageFile = new File(getFilesDir(), filename);
+
+        imageURI = FileProvider.getUriForFile(this, ".fileprovider", imageFile);
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
+
+        launchCameraActivity.launch(takePictureIntent);
+    }
+
 }
 
 

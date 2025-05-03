@@ -21,4 +21,8 @@ public class Task {
 
     @ColumnInfo(name="duedate")
     public String duedate;
+
+    @ColumnInfo(name = "image")
+    public String imageURI;
+
 }

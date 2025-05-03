@@ -60,11 +60,13 @@ public class ToDoListActivity extends AppCompatActivity {
     }
     @Override
     protected void onResume(){
+
         super.onResume();
+        Log.d("ToDoApp","onResume");
     }
 
     public void addTask(View view){
-        Log.d("ToDoAPP", "addTask");
+        Log.d("ToDoApp", "addTask");
 
         //create explicit intent for ToDo
         Intent taskIntent = new Intent(this, ToDo.class);

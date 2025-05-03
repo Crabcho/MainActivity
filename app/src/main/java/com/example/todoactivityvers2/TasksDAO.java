@@ -14,11 +14,7 @@ public interface TasksDAO {
     @Insert
     void insert(Task task);
 
-    //Retrieve a list of all tasks from the database
-    //@Query("SELECT * FROM task")
-    //Single<List<Task>> getAll();
-
-    //Observe for chnages to the tasks in the database
+    //Observe for changes to the tasks in the database
     @Query("SELECT * FROM task")
     LiveData<List<Task>> observeAll();
 }
