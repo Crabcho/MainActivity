@@ -102,6 +102,7 @@ public class ToDo extends AppCompatActivity {
                 task1.duedate = date + " " + time;
 
                 task1.imageURI = (imageURI != null) ? imageURI.toString() : null;
+                task1.done = false;
 
                 //this won't work
                 //db.tasksDAO().insert(task1);
@@ -193,7 +194,7 @@ public class ToDo extends AppCompatActivity {
         String filename = "JPEG_" + System.currentTimeMillis() + ".jpg";
         File imageFile = new File(getFilesDir(), filename);
 
-        imageURI = FileProvider.getUriForFile(this, ".fileprovider", imageFile);
+        imageURI = FileProvider.getUriForFile(this, "com.example.todoactivityvers2.fileprovider", imageFile);
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
 

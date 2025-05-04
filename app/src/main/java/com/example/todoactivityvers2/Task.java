@@ -7,6 +7,9 @@ import androidx.room.PrimaryKey;
 @Entity
 public class Task {
 
+    @ColumnInfo(name = "done")
+    public boolean done;
+
     @PrimaryKey(autoGenerate = true)
     public int uid;
 
