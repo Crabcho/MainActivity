@@ -20,84 +20,58 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.fragment.app.Fragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
 import java.util.concurrent.Executors;
 
 
 public class ToDoListActivity extends AppCompatActivity {
-
-    TasksDB db;
-    TaskListAdapter taskListAdapter;
-
+    BottomNavigationView bottomNavigationView;
+    AllTasksFragment allTasksFragment;
+    CompletedTaskFragment completedTasksFragment;
+    PendingTasksFragment pendingTasksFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_to_do_list);
-        db = TasksDB.getInstance(this);
-        RecyclerView recyclerView = findViewById(R.id.taskListRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        taskListAdapter = new TaskListAdapter(this, db);
-        recyclerView.setAdapter(taskListAdapter);
-        ItemTouchHelper.SimpleCallback itemTouchCallback = new ItemTouchHelper.SimpleCallback(
-                0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                return false;
+        // Initialize fragments
+        allTasksFragment = new AllTasksFragment();
+        completedTasksFragment = new CompletedTaskFragment();
+        pendingTasksFragment = new PendingTasksFragment();
+
+        // Set default fragment
+        loadFragment(allTasksFragment);
+
+        // Setup bottom navigation
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.page_all) {
+                loadFragment(allTasksFragment);
+                return true;
+            } else if (id == R.id.page_done) {
+                loadFragment(completedTasksFragment);
+                return true;
+            } else if (id == R.id.page_todo) {
+                loadFragment(pendingTasksFragment);
+                return true;
             }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-                taskListAdapter.deleteTask(position);
-            }
-        };
-
-        new ItemTouchHelper(itemTouchCallback).attachToRecyclerView(recyclerView);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-
-        });
-
-
-
-
-        //Observe for changes in the list of all tasks in the database
-        LiveData<List<Task>> tasks = db.tasksDAO().observeAll();
-
-        //Handle any changes in the observer
-        tasks.observe(this, new Observer<List<Task>>() {
-            @Override
-            public void onChanged(List<Task> tasks) {
-                // Add null check
-                if (taskListAdapter != null) {
-                    taskListAdapter.setTaskList(db, tasks);
-                } else {
-                    Log.e("ToDoListActivity", "Adapter is null!");
-                }
-            }
+            return false;
         });
     }
-    @Override
-    protected void onResume(){
 
-        super.onResume();
-        Log.d("ToDoApp","onResume");
+    private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentHolder, fragment)
+                .commit();
     }
 
-    public void addTask(View view){
-        Log.d("ToDoApp", "addTask");
-
-        //create explicit intent for ToDo
+    public void addTask(View view) {
         Intent taskIntent = new Intent(this, ToDo.class);
         startActivity(taskIntent);
-
     }
 }
