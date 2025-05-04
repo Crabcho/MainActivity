@@ -21,6 +21,13 @@ public interface TasksDAO {
     @Query("SELECT * FROM task")
     LiveData<List<Task>> observeAll();
 
+    //Observe for changes to the completed tasks
+    @Query("SELECT * FROM task WHERE done = '1'")
+    LiveData<List<Task>> observeDone();
+    //Observe for changes to the pending tasks
+    @Query("SELECT * FROM task WHERE done = '0'")
+    LiveData<List<Task>> observerPending();
+
     @Update
     void updateTask(Task task);
 
