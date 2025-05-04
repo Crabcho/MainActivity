@@ -28,6 +28,10 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         this.tasks = new ArrayList<>();
     }
 
+    public TaskListAdapter() {
+
+    }
+
 
     public void setTaskList(TasksDB db, List<Task> tasks) {
         this.db = db;
