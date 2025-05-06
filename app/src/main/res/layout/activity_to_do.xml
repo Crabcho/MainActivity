@@ -119,15 +119,24 @@
 
     <ImageView
         android:id="@+id/taskImageView"
-        android:layout_width="396dp"
-        android:layout_height="209dp"
+        android:layout_width="391dp"
+        android:layout_height="189dp"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toTopOf="@+id/saveTaskButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.466"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/taskDueTimeView"
-        app:layout_constraintVertical_bias="0.718" />
+        app:layout_constraintVertical_bias="0.585" />
 
+    <Button
+        android:id="@+id/mapButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="openMap"
+        android:text="Open Map"
+        android:backgroundTint="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskImageView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -29,6 +29,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class ToDo extends AppCompatActivity {
+
+
     Uri imageURI;
     ActivityResultLauncher<Intent> launchCameraActivity;
 
@@ -144,6 +146,10 @@ public class ToDo extends AppCompatActivity {
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
 
         launchCameraActivity.launch(takePictureIntent);
+    }
+    public void openMap(View view) {
+        Intent intent = new Intent(this, MyLocation.class);
+        startActivity(intent);
     }
 
 }
