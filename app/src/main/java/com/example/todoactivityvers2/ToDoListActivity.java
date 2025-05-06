@@ -1,37 +1,19 @@
 package com.example.todoactivityvers2;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.List;
-import java.util.concurrent.Executors;
 
 
 public class ToDoListActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
-    AllTasksFragment allTasksFragment;
-    CompletedTaskFragment completedTasksFragment;
-    PendingTasksFragment pendingTasksFragment;
+    private AllTasksFragment allTasksFragment;
+    private CompletedTaskFragment completedTasksFragment;
+    private PendingTasksFragment pendingTasksFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

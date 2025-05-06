@@ -1,95 +1,49 @@
 package com.example.todoactivityvers2;
 
 import android.os.Bundle;
-
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import java.util.List;
+import java.util.concurrent.Executors;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AllTasksFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class AllTasksFragment extends Fragment {
-    RecyclerView recyclerView;
-    TaskListAdapter taskListAdapter;
-    TasksDB db;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private RecyclerView recyclerView;
+    private TaskListAdapter adapter;
 
     public AllTasksFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AllTasksFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AllTasksFragment newInstance(String param1, String param2) {
-        AllTasksFragment fragment = new AllTasksFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+        super(R.layout.fragment_all_tasks);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        db = TasksDB.getInstance(requireContext());
         recyclerView = view.findViewById(R.id.taskListRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        taskListAdapter = new TaskListAdapter();
-        recyclerView.setAdapter(taskListAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        adapter = new TaskListAdapter();
+        recyclerView.setAdapter(adapter);
 
-        setupItemTouchHelper();
+        loadRemindersSafely();
     }
 
-    protected LiveData<List<Task>> getTasks() {
-        return null;
-    }
+    private void loadRemindersSafely() {
+        TasksDB db = TasksDB.getDatabase(requireContext());
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<Task> reminders = db.tasksDAO().getAll();
 
-    private void setupItemTouchHelper() {
-        ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
-                0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-                taskListAdapter.deleteTask(position);
-            }
-        };
-        new ItemTouchHelper(touchHelperCallback).attachToRecyclerView(recyclerView);
+            // Ensure UI update only if fragment is attached
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (isAdded()) {
+                    adapter.setTaskList(reminders);
+                }
+            });
+        });
     }
 }

@@ -12,19 +12,17 @@ public abstract class TasksDB extends RoomDatabase {
 
     public abstract TasksDAO tasksDAO();
 
-    private static final String DB_NAME="tasks_database_name";
     private static TasksDB db;
 
-    //Return an database instance.
-    //If the database instance already exists it return the existing instance.
-    //If not then it creates a new instance and returns that.
-    public static TasksDB getInstance(Context context)
-    {
-        if (db == null) db =buildDatabaseInstance(context);
+    public static TasksDB getDatabase(Context context) {
+        if (db == null) {
+            db = Room.databaseBuilder(context.getApplicationContext(),
+                            TasksDB.class, "Tasks_db")
+                    .fallbackToDestructiveMigration()
+                    .build();
+        }
         return db;
     }
-    private static TasksDB buildDatabaseInstance(Context context)
-    {
-        return Room.databaseBuilder(context, TasksDB.class, DB_NAME).build();
-    }
 }
+
+

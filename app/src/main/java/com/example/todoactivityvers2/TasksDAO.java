@@ -5,6 +5,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.Update;
 
 import java.util.List;
@@ -25,8 +26,12 @@ public interface TasksDAO {
     @Query("SELECT * FROM task WHERE done = '1'")
     LiveData<List<Task>> observeDone();
     //Observe for changes to the pending tasks
-    @Query("SELECT * FROM task WHERE done = '0'")
+    @Transaction
+    @Query("SELECT * FROM task WHERE done = 0")
     LiveData<List<Task>> observerPending();
+    @Query("SELECT * FROM task")
+    List<Task> getAll();
+
 
     @Update
     void updateTask(Task task);

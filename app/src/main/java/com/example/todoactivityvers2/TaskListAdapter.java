@@ -1,12 +1,12 @@
 package com.example.todoactivityvers2;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,25 +19,18 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHolder> {
+    public static void setListener(OnTaskClickListener listener) {
+        TaskListAdapter.listener = listener;
+    }
 
-    private List<Task> tasks;
+    public interface OnTaskClickListener {
+        void onTaskClick(Task task);
+
+    }
+
+    private static OnTaskClickListener listener;
+    private static List<Task> tasks = new ArrayList<>();
     private TasksDB db;
-
-    public TaskListAdapter(ToDoListActivity toDoListActivity, TasksDB db) {
-        this.db = db;
-        this.tasks = new ArrayList<>();
-    }
-
-    public TaskListAdapter() {
-
-    }
-
-
-    public void setTaskList(TasksDB db, List<Task> tasks) {
-        this.db = db;
-        this.tasks = tasks;
-        notifyDataSetChanged();
-    }
 
     @NonNull
     @Override
@@ -49,32 +42,36 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position){
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Task task = tasks.get(position);
+        Log.d("TaskAdapter", "Binding task: " + task.title);
+
         holder.titleView.setText(task.title);
         holder.descView.setText(task.description);
+
         if (task.imageURI != null && !task.imageURI.isEmpty()) {
+            Log.d("TaskAdapter", "Image URI: " + task.imageURI);
             holder.imageView.setImageURI(Uri.parse(task.imageURI));
         } else {
             holder.imageView.setImageResource(R.drawable.ic_launcher_background);
         }
+
         holder.doneCheckBox.setChecked(task.done);
 
         holder.doneCheckBox.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        task.done = isChecked;
-                        Executor myExecutor = Executors.newSingleThreadExecutor();
-                        myExecutor.execute(new Runnable(){
-                            @Override
-                            public void run(){
-                                db.tasksDAO().updateTask(task);
-                            }
-                        });
-                    }
+                (buttonView, isChecked) -> {
+                    task.done = isChecked;
+                    Executor myExecutor = Executors.newSingleThreadExecutor();
+                    myExecutor.execute(() -> db.tasksDAO().updateTask(task));
                 }
         );
+    }
+    @SuppressLint("NotifyDataSetChanged")
+    public void setTaskList(List<Task> tasks) {
+        this.db = db;
+        this.tasks = tasks;
+        notifyDataSetChanged(); // Force UI update
+        Log.d("ADAPTER_DEBUG", "Updated with " + tasks.size() + " tasks");
     }
 
     public void deleteTask(int position) {
@@ -90,12 +87,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
         // Delete from database in background thread
         Executor myExecutor = Executors.newSingleThreadExecutor();
-        myExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                    db.tasksDAO().deleteTask(task);
-            }
-        });
+        myExecutor.execute(() -> db.tasksDAO().deleteTask(task));
     }
 
 
@@ -117,6 +109,12 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
             descView = itemView.findViewById(R.id.taskListDesc);
             imageView = itemView.findViewById(R.id.taskListImage);
             doneCheckBox = itemView.findViewById(R.id.taskCheckBox);
+            itemView.setOnClickListener(v -> {
+                int pos = getAdapterPosition();
+                if (listener != null && pos != RecyclerView.NO_POSITION) {
+                    listener.onTaskClick(tasks.get(pos));
+                }
+            });
         }
     }
 }

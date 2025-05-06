@@ -25,4 +25,6 @@ public class Task {
     @ColumnInfo(name = "image")
     public String imageURI;
 
+    public Task(){}
+
 }

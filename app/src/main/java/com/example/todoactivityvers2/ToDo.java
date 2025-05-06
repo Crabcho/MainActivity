@@ -9,32 +9,21 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TimePicker;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-
-import android.content.SharedPreferences;
-import android.content.Context;
 
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -44,7 +33,7 @@ public class ToDo extends AppCompatActivity {
     ActivityResultLauncher<Intent> launchCameraActivity;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_to_do);
@@ -59,128 +48,84 @@ public class ToDo extends AppCompatActivity {
 
         launchCameraActivity = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult activityResult) {
-                        if(activityResult.getResultCode() == RESULT_OK) {
-                            ImageView taskImage = findViewById(R.id.taskImageView);
+                activityResult -> {
+                    if(activityResult.getResultCode() == RESULT_OK) {
+                        ImageView taskImage = findViewById(R.id.taskImageView);
+                        taskImage.setImageURI(imageURI);
+                        Log.d("ToDoApp", "picture store in: " + imageURI);
+                        if (imageURI != null) {
                             taskImage.setImageURI(imageURI);
-                            Log.d("ToDoApp", "picture store in: " + imageURI);
-                            if (imageURI != null) {
-                                taskImage.setImageURI(imageURI);
-                            }
                         }
-
                     }
+
                 });
         Button saveButton = findViewById(R.id.saveTaskButton);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("ToDoActivity", "onSaveClick");
-                EditText titleView = findViewById(R.id.taskTitleView);
-                EditText descView = findViewById(R.id.taskDescriptionView);
-                EditText dateView = findViewById(R.id.taskDueDateView);
-                EditText timeView = findViewById(R.id.taskDueTimeView);
+        saveButton.setOnClickListener(view -> {
+            Log.d("ToDoActivity", "onSaveClick");
+            EditText titleView = findViewById(R.id.taskTitleView);
+            EditText descView = findViewById(R.id.taskDescriptionView);
+            EditText dateView = findViewById(R.id.taskDueDateView);
+            EditText timeView = findViewById(R.id.taskDueTimeView);
 
 
-                String title = titleView.getText().toString();
-                String desc = descView.getText().toString();
-                String date = dateView.getText().toString();
-                String time = timeView.getText().toString();
+            String title = titleView.getText().toString();
+            String desc = descView.getText().toString();
+            String date = dateView.getText().toString();
+            String time = timeView.getText().toString();
 
+            //create a new Task
+            final Task task = new Task();
+            task.title = title;
+            task.description = desc;
+            task.duedate = date + " " + time;
 
+            task.imageURI = (imageURI != null) ? imageURI.toString() : null;
+            task.done = false;
 
-                //create an instance of the Database
-                TasksDB db = TasksDB.getInstance(view.getContext());
-
-                //create a new Task
-                final Task task1 = new Task();
-                task1.title = title;
-                task1.description = desc;
-                task1.duedate = date + " " + time;
-
-                task1.imageURI = (imageURI != null) ? imageURI.toString() : null;
-                task1.done = false;
-
-                //this won't work
-                //db.tasksDAO().insert(task1);
-
-                //We have to create a separate thread to insert data into the database
-                Executor myExecutor = Executors.newSingleThreadExecutor();
-                myExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        //add the task to the database
-                        db.tasksDAO().insert(task1);
-                    }
-                });
-                finish();
+            TasksDB db = TasksDB.getDatabase(this);
 
 
 
-                /*
-                //retrieve all the tasks stored in the database
-                LiveData<List<Task>> tasks = db.tasksDAO().observeAll();
+            //We have to create a separate thread to insert data into the database
+            Executor myExecutor = Executors.newSingleThreadExecutor();
+            myExecutor.execute(() -> {
+                db.tasksDAO().insert(task);
 
-                //We need to observe the LiveData object and wait for it to change
-                tasks.observe(this,  new Observer<List<Task>>(){
-                    @Override
-                    public void onChanged(List<Task> tasks) {
+                // Add this debug code:
+                List<Task> allTasks = db.tasksDAO().getAll();
+                Log.d("DB_VERIFY", "Tasks in DB: " + allTasks.size());
+                for (Task t : allTasks) {
+                    Log.d("DB_VERIFY", "Task: " + t.title + " (ID: " + t.uid + ")");
+                    finish();
+                }
+            });
 
-                        //Loop over the list and log the title and description to the console
-                        for (Task task: tasks) {
-                            Log.d("ToDoAPP", task.title + " : " + task.description);
-                        }
-                    }
-                });
-
-
-
-                 */
-
-
-
-
-////                SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-////                SharedPreferences.Editor editor = sharedPref.edit();
-////                editor.putString("title", title);
-////                editor.putString("desc",desc);
-////                editor.putString("date",date);
-////                editor.putString("time",time);
-////                editor.commit();
-//
-//                String storedTitle = sharedPref.getString("title", "None");
-            }
         });
     }
 
-    public void onClick(View view) {
+    public void onDateClick(View view) {
         Log.d("ToDoActivity", "onDateClick");
 
-        DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                EditText dateView = findViewById(R.id.taskDueDateView);
+        final Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
 
-                dateView.setText(dayOfMonth + "/" + month + "/" + year);
-            }
-        };
-        DatePickerDialog dialog = new DatePickerDialog(this, listener, 2020, 1, 1);
-        dialog.show();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (view1, year1, monthOfYear, dayOfMonth) ->
+                        ((EditText) findViewById(R.id.taskDueDateView)).setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year1),
+                year, month, day);
+        datePickerDialog.show();
     }
 
     public void onTimeClick(View view) {
         Log.d("ToDoActivity", "onTimeClick");
 
-        TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                EditText timeView = findViewById(R.id.taskDueTimeView);
+        TimePickerDialog.OnTimeSetListener listener = (view1, hourOfDay, minute) -> {
+            EditText timeView = findViewById(R.id.taskDueTimeView);
 
-                timeView.setText(hourOfDay + ":" + minute);
-            }
+            timeView.setText(hourOfDay + ":" + minute);
         };
         TimePickerDialog dialog = new TimePickerDialog(this, listener, 00, 00, true);
         dialog.show();
